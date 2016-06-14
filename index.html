@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <title>Multidimensional Linked Data Interfaces</title>
+    <script src='//www.w3.org/Tools/respec/respec-w3c-common' async class='remove'></script>
+    <script class='remove'>
+      var respecConfig = {
+        specStatus: "ED",
+        shortName: "multidimensional-interface",
+        subtitle: "A Linked Data interface for exposing fragmented ordinal data.",
+        copyrightStart: "2016",
+        editors: [{
+          name: "Ruben Taelman",
+          url: "http://www.rubensworks.net",
+        }],
+        processVersion: 2015,
+        edDraftURI: "http://github.com/rubensworks/spec-multidimensional-interface",
+        shortName: "dahut"
+      };
+    </script>
+    <style>
+      body { max-width: 900px; margin: 0 auto; }
+      dd ul { margin: 0 0 .5em; }
+      dl.triple dt { float: left; clear: left; width: 6em; }
+    </style>
+  </head>
+  <body>
+    <section id='abstract'>
+      <p>
+        Different Linked Data interfaces to expose data with various fragmentation strategies exist.
+        This document specifies a <em>Multidimensional Linked Data</em> interface,
+        through which ordinal data can be consumed that is fragmented in a certain way.
+        Clients can consume this by navigation through an interface-level index to select their desired data.
+      </p>
+    </section>
+    <section id='sotd'>
+      <p>
+        This is required.
+      </p>
+    </section>
+    <section id="introduction" class="informative">
+      <h2>Introduction</h2>
+      <section>
+        <h3>Aim, scope, and intended audience</h3>
+        <p>
+            The goal of a <em>Multidimensional Interface</em> is to provide efficient selective access to ordinal Linked Data.
+        </p>
+        <p>
+            This document defines the <em>Multidimensional Interface</em>, which is a collection of interfaces
+            that clients can use to navigate through multidimensional ordinal Linked Data.
+        </p>  
+        <p>
+            This document is intented for people who want to implement a Multidimensional Interface on a server,
+            who want to implement a client that is able to consume such an interface, or for those who want to understand
+            how these servers and clients work.
+        </p>
+      </section>
+      <section>
+        <h3>Document conventions</h3>
+        <p>
+          We write triples in this document
+          in the <a href="http://www.w3.org/TeamSubmission/turtle/">Turtle RDF syntax</a> [[!TURTLE]]
+          using the following namespace prefixes:
+        </p>
+<pre><code>PREFIX rdf:   &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt;
+PREFIX mdi:   &lt;http://example.org/todo/#&gt;
+</code></pre>
+      </section>
+    </section>
+    
+    <section id="conformance">
+    </section>
+    
+  <section>
+    <h2>Document type</h2>
+    <section class="informative">
+      <h2>Overview</h2>
+	  <p>
+		  <a href="#bib-LINKED-DATA">Linked Data</a> can be exposed on the Web through different kinds of interfaces.
+          Some of these interfaces are more expressive than others.
+          A <a href="#bib-SPARQL">SPARQL</a> interface for example is more expressive than a Linked Data dump because
+          a client can be more selective in its queries.          
+	  </p>
+      <p>
+          <a href="http://www.hydra-cg.com/spec/latest/linked-data-fragments/">Linked Data Fragments</a> is a framework
+          that provides a uniform view on all possible interfaces to publish Linked Data.
+          This framework defines the concept of a <em>Linked Data Fragment</em> of a <em>Linked Data dataset</em>,
+          which is a set of triples that consists of the following parts:
+      </p>
+      <dl>
+        <dt>data</dt>
+        <dd>
+          all triples of this dataset that match a specific selector;
+        </dd>
+        <dt>metadata</dt>
+        <dd>
+          triples that describe the dataset and/or the Linked Data Fragment;
+        </dd>
+        <dt>controls</dt>
+        <dd>
+          hypermedia links and/or forms that lead to other Linked Data Fragments.
+        </dd>
+      </dl>
+	  <p>
+		  When we are publishing <em>n-dimensional ordinal data</em> that contains numbers, dates, geospatial locations or even genomic ranges,
+          we may want to enable clients to select data by an n-dimensional range, in order to make their queries more selective.
+	  </p>
+	  <p>
+		  A Multidimensional Interface is a collection of structured interfaces through which clients can navigate to find certain subsets
+          of ordinal data based on certain multidimensional ranges.
+	  </p>
+    </section>
+    <section>
+      <h2>Definition</h2>
+      <p>
+        A <em>Multidimensional Interface</em> can be defined over <dfn>n-dimensional resources</dfn>,
+        which are resources that have a certain position in an n-dimensional ordinal space.
+      </p>
+      <p>
+        A <dfn>Multidimensional Interface</dfn> on a given dataset is a collection of interfaces containing the following elements:
+      </p>
+      <dl>
+        <dt>Range Fragment</dt>
+        <dd>
+          A Linked Data Fragment that has an interval as selector, which apply to dimensional resources at one of its n dimensions.
+        </dd>
+        <dt>Range Gate</dt>
+        <dd>
+          A Linked Data interface through which Range Fragments can be selected by interval.
+          This interface selects all Range Fragments whose interval overlap with the Range Gate’s interval.
+        </dd>
+        <dt>hypermedia controls</dt>
+        <dd>
+          A Range Gate MUST contain hypermedia controls
+          that allow to retrieve Range Fragments of the given dataset.
+          This MUST either be provided as a form
+          that allows to choose the initial and final elements of the selector's interval.
+        </dd>
+        <dd>
+          A Range Gate MAY contain additional hypermedia controls.
+		  The IRIs of data, metadata, and control quads entities SHOULD be dereferenceable.
+        </dd>
+        <dd>
+          A Range Fragments MAY contain hypermedia links to more selective Range Gates on that fragmented subset of the original dataset.
+        </dd>
+      </dl>
+      <p>          
+        A Range Fragment of a dataset is fully determined and identified by its <em>triple pattern selector</em> and <dfn>interval selector</dfn>.
+		This interval selector consists of two components <code>initial</code> and <code>final</code> which form a interval.
+        The <code>initial</code> MUST either be a variable, an ordinal literal or an ordinal IRI;
+        the <code>final</code> MUST either be a variable, an ordinal literal or an ordinal IRI;
+        These components MUST NOT be blank nodes.
+      </p>
+
+      <p>
+		  The above constraints define the document type of Multidimensional Interface.
+		  The following sections <a href="#range-fragment"></a> and <a href="#range-gate"></a> explain this in more detail.
+      </p>
+
+      <p>
+		  Multidimensional Interfaces are not bound to a specific syntax because different methods can be used to represent its data, metadata, and controls.
+		  The server MUST, however, support at least one RDF-based representation that MUST allow for triples to be represented.
+		  For allowing clients to correctly parse requests Multidimensional Interfaces, servers MUST indicate the correct MIME type when sending responses.
+      </p>
+    </section>
+
+    <section id="range-fragment">
+      <h3>Range Fragment</h3>
+      <p>
+		A Range Fragment is a Linked Data Fragment over a certain fragment of a dataset.
+        This fragment is defined by a certain interval and a dimensional resource over which the interval is defined.
+        This fragmentation is done for exactly one dimension of the dimensional resource over which the Range Fragment is defined.
+      </p>
+      <p>
+		The dimensional resource type <em>GPS position</em> could be fragmented by <em>longitude</em> and can therefore have several
+        Range Fragments which consist of all dimensional resources that are within a certain longitudal range.
+      </p>
+      <p>
+		Each Range Fragment MUST define the following metadata:
+      </p>
+<pre><code>&lt;http://example.org/range-fragment-0-100&gt;
+        a mdi:RangeFragment;
+        mdi:initial "0";
+        mdi:final "100".</code></pre>
+      <p>
+		A Range Fragment MAY define a link to a more selective Range Gate as follows:
+      </p>
+<pre><code>&lt;http://example.org/range-fragment-0-100&gt;
+        mdi:hasRangeGate &lt;http://example.org/range-fragment-0-100/range-gate&gt;.</code></pre>
+    </section>
+
+    <section id="range-gate">
+      <h3>Range Gate</h3>
+      <p>
+		A Range Gate is a Linked Data Fragment that exposes fixed Range Fragments.
+        The Range Gate MUST provide a control to select Range Fragments by providing an interval.
+      </p>
+      <p>
+        This Range Gate control MUST be expressed as a form in the
+        <a href="http://www.hydra-cg.com/spec/latest/core/">Hydra Core Vocabulary</a> [[!HYDRA-CORE]]
+        using triples in the controls graph.
+      </p>
+<pre><code>&lt;http://example.org/range-gate&gt
+        a mdi:RangeGate;
+        hydra:search [
+            hydra:template "http://example.org/range-gate{?initial,final}";
+            hydra:mapping  [ hydra:variable "initial"; hydra:property mdi:initial ],
+                           [ hydra:variable "final"  ; hydra:property mdi:final ]
+        ].</code></pre>
+      <p>
+          The interval selector is used to lookup all Range Fragments that at overlap or are within with the selected interval.
+          The selected interval must be interpreted as starting from initial, including initial up until final, excluding final.
+      </p>
+	  <p class="note">
+		  Not providing the initial or final parameter, means that search interval has to limit for that element.
+          If we for example only provide initial and ommit final, the Range Gate MUST provide all elements starting from initial.
+          If we only provide final and ommit initial, the Range Gate MUST provide all elements until initial.
+      </section>
+	  
+    </section>
+  </section>
+    
+  </body>
+</html>
