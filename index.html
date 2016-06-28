@@ -6,17 +6,19 @@
     <script src='//www.w3.org/Tools/respec/respec-w3c-common' async class='remove'></script>
     <script class='remove'>
       var respecConfig = {
-        specStatus: "ED",
+        specStatus: "unofficial",
         shortName: "multidimensional-interface",
         subtitle: "A Linked Data interface for exposing fragmented ordinal data.",
         copyrightStart: "2016",
         editors: [{
           name: "Ruben Taelman",
           url: "http://www.rubensworks.net",
+          mailto: "ruben.taelman@ugent.be",
+          companyURL: "http://www.iminds.be/"
         }],
         processVersion: 2015,
-        edDraftURI: "http://github.com/rubensworks/spec-multidimensional-interface",
-        shortName: "dahut"
+        edDraftURI: "http://w3id.org/multidimensional-interface/spec",
+        shortName: "mdi"
       };
     </script>
     <style>
@@ -29,14 +31,11 @@
     <section id='abstract'>
       <p>
         Different Linked Data interfaces to expose data with various fragmentation strategies exist.
+        <a href="#bib-SPARQL">SPARQL</a> [[sparql11-update]] endpoints, for example, offer highly selective access to data,
+        while a datadump offers no fragmentation.
         This document specifies a <em>Multidimensional Linked Data</em> interface,
         through which ordinal data can be consumed that is fragmented in a certain way.
-        Clients can consume this by navigation through an interface-level index to select their desired data.
-      </p>
-    </section>
-    <section id='sotd'>
-      <p>
-        This is required.
+        Clients can consume this by navigating through an interface-level index to select their desired data.
       </p>
     </section>
     <section id="introduction" class="informative">
@@ -64,7 +63,7 @@
           using the following namespace prefixes:
         </p>
 <pre><code>PREFIX rdf:   &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt;
-PREFIX mdi:   &lt;http://example.org/todo/#&gt;
+PREFIX mdi:   &lt;http://w3id.org/multidimensional-interface/ontology#&gt;
 </code></pre>
       </section>
     </section>
@@ -77,13 +76,13 @@ PREFIX mdi:   &lt;http://example.org/todo/#&gt;
     <section class="informative">
       <h2>Overview</h2>
 	  <p>
-		  <a href="#bib-LINKED-DATA">Linked Data</a> can be exposed on the Web through different kinds of interfaces.
+		  <a href="#bib-LINKED-DATA">Linked Data</a> [[LINKED-DATA]] can be exposed on the Web through different kinds of interfaces.
           Some of these interfaces are more expressive than others.
-          A <a href="#bib-SPARQL">SPARQL</a> interface for example is more expressive than a Linked Data dump because
+          A <a href="#bib-sparql11-update">SPARQL</a> interface for example is more expressive than a Linked Data dump because
           a client can be more selective in its queries.          
 	  </p>
       <p>
-          <a href="http://www.hydra-cg.com/spec/latest/linked-data-fragments/">Linked Data Fragments</a> is a framework
+          <a href="http://www.hydra-cg.com/spec/latest/linked-data-fragments/">Linked Data Fragments</a> [[!HYDRA-LDF]] is a framework
           that provides a uniform view on all possible interfaces to publish Linked Data.
           This framework defines the concept of a <em>Linked Data Fragment</em> of a <em>Linked Data dataset</em>,
           which is a set of triples that consists of the following parts:
@@ -115,7 +114,7 @@ PREFIX mdi:   &lt;http://example.org/todo/#&gt;
       <h2>Definition</h2>
       <p>
         A <em>Multidimensional Interface</em> can be defined over <dfn>n-dimensional resources</dfn>,
-        which are resources that have a certain position in an n-dimensional ordinal space.
+        which are <a href="#bib-RDF">RDF</a> resources with n properties whose ranges are strict linearly ordered sets.
       </p>
       <p>
         A <dfn>Multidimensional Interface</dfn> on a given dataset is a collection of interfaces containing the following elements:
@@ -139,10 +138,10 @@ PREFIX mdi:   &lt;http://example.org/todo/#&gt;
         </dd>
         <dd>
           A Range Gate MAY contain additional hypermedia controls.
-		  The IRIs of data, metadata, and control quads entities SHOULD be dereferenceable.
+		  The IRIs of data, metadata, and control triples entities SHOULD be dereferenceable.
         </dd>
         <dd>
-          A Range Fragments MAY contain hypermedia links to more selective Range Gates on that fragmented subset of the original dataset.
+          A Range Fragment MAY contain hypermedia links to more selective Range Gates on that fragmented subset of the original dataset.
         </dd>
       </dl>
       <p>          
@@ -154,7 +153,7 @@ PREFIX mdi:   &lt;http://example.org/todo/#&gt;
       </p>
 
       <p>
-		  The above constraints define the document type of Multidimensional Interface.
+		  The above constraints define the document type of a Multidimensional Interface.
 		  The following sections <a href="#range-fragment"></a> and <a href="#range-gate"></a> explain this in more detail.
       </p>
 
@@ -168,7 +167,7 @@ PREFIX mdi:   &lt;http://example.org/todo/#&gt;
     <section id="range-fragment">
       <h3>Range Fragment</h3>
       <p>
-		A Range Fragment is a Linked Data Fragment over a certain fragment of a dataset.
+		A Range Fragment is a Linked Data Fragment of a dataset.
         This fragment is defined by a certain interval and a dimensional resource over which the interval is defined.
         This fragmentation is done for exactly one dimension of the dimensional resource over which the Range Fragment is defined.
       </p>
@@ -188,6 +187,10 @@ PREFIX mdi:   &lt;http://example.org/todo/#&gt;
       </p>
 <pre><code>&lt;http://example.org/range-fragment-0-100&gt;
         mdi:hasRangeGate &lt;http://example.org/range-fragment-0-100/range-gate&gt;.</code></pre>
+      <p>
+		Such a more selective Range Gate starts from the given Range Fragment as the datasource,
+        and allows further fragmentation of that datasource.
+      </p>
     </section>
 
     <section id="range-gate">
@@ -209,13 +212,13 @@ PREFIX mdi:   &lt;http://example.org/todo/#&gt;
                            [ hydra:variable "final"  ; hydra:property mdi:final ]
         ].</code></pre>
       <p>
-          The interval selector is used to lookup all Range Fragments that at overlap or are within with the selected interval.
+          The interval selector is used to lookup all Range Fragments that overlap or are within with the selected interval.
           The selected interval must be interpreted as starting from initial, including initial up until final, excluding final.
       </p>
 	  <p class="note">
-		  Not providing the initial or final parameter, means that search interval has to limit for that element.
-          If we for example only provide initial and ommit final, the Range Gate MUST provide all elements starting from initial.
-          If we only provide final and ommit initial, the Range Gate MUST provide all elements until initial.
+		  Not providing the initial or final parameter, means that search interval has no limit for that element.
+          If we for example only provide initial and omit final, the Range Gate MUST provide all elements starting from initial.
+          If we only provide final and omit initial, the Range Gate MUST provide all elements until initial.
       </section>
 	  
     </section>
