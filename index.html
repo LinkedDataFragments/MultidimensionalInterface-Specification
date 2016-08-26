@@ -127,8 +127,11 @@ PREFIX mdi:   &lt;http://w3id.org/multidimensional-interface/ontology#&gt;
         </dd>
         <dt>Range Gate</dt>
         <dd>
-          A Linked Data interface through which Range Fragments can be selected by interval.
-          This interface selects all Range Fragments whose interval overlap with the Range Gate’s interval.
+          A Linked Data interface on which a client can find out how to select a certain Range Fragment by interval.
+        </dd>
+        <dt>Range Interval</dt>
+        <dd>
+          The selected interval has a lower (incl) and an upper bound (excl) <pre>[X,Y[</pre> which describe a Range Fragment
         </dd>
         <dt>hypermedia controls</dt>
         <dd>
@@ -152,7 +155,6 @@ PREFIX mdi:   &lt;http://w3id.org/multidimensional-interface/ontology#&gt;
         the <code>final</code> MUST either be a variable, an ordinal literal or an ordinal IRI;
         These components MUST NOT be blank nodes.
       </p>
-
       <p>
 		  The above constraints define the document type of a Multidimensional Interface.
 		  The following sections <a href="#range-fragment"></a> and <a href="#range-gate"></a> explain this in more detail.
@@ -177,14 +179,7 @@ PREFIX mdi:   &lt;http://w3id.org/multidimensional-interface/ontology#&gt;
         Range Fragments which consist of all dimensional resources that are within a certain longitudal range.
       </p>
       <p>
-		Each Range Fragment MUST define the following metadata:
-      </p>
-<pre><code>&lt;http://example.org/range-fragment-0-100&gt;
-        a mdi:RangeFragment;
-        mdi:initial "0";
-        mdi:final "100".</code></pre>
-      <p>
-		A Range Fragment MAY define a link to a more selective Range Gate as follows:
+		A Range Fragment MAY define a link to a more selective Range Gate as given in the following example:
       </p>
 <pre><code>&lt;http://example.org/range-fragment-0-100&gt;
         mdi:hasRangeGate &lt;http://example.org/range-fragment-0-100/range-gate&gt;.</code></pre>
@@ -197,11 +192,27 @@ PREFIX mdi:   &lt;http://w3id.org/multidimensional-interface/ontology#&gt;
     <section id="range-gate">
       <h3>Range Gate</h3>
       <p>
-		A Range Gate is a Linked Data Fragment that exposes fixed Range Fragments.
-        The Range Gate MUST provide a control to select Range Fragments by providing an interval.
+	A Range Gate is a Linked Data Fragment that exposes Range Fragments.
+      </p>
+
+      <p>
+	Each Range Fragment described in this Range Gate MUST define the following metadata:
+        <ul>
+          <li>a <em>rdf:type</em> mdi:RangeFragment, 
+          <li>an <em>mdi:initial</em> describing the lower bound of the interval, including this value, and
+          <li>an <em>mdi:final</em> describing the upper bound of the interval, excluding this value.
+        </ul>
       </p>
       <p>
-        This Range Gate control MUST be expressed as a form in the
+        As given in this example: <br/>
+        <pre><code>&lt;http://example.org/range-fragment-0-100&gt;
+        a mdi:RangeFragment;
+        mdi:initial "0"^^xsd:integer;
+        mdi:final "100"^^xsd:integer.</code></pre>
+      </p>
+      <p>
+        The Range Gate MAY provide a control to select Range Fragments by providing an interval.
+        This Range Gate control, if provided, MUST be expressed as a form in the
         <a href="http://www.hydra-cg.com/spec/latest/core/">Hydra Core Vocabulary</a> [[!HYDRA-CORE]]
         using triples in the controls graph.
       </p>
